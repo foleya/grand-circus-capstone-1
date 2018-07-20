@@ -7,7 +7,7 @@ public class PigLatinTranslator {
 	public static void main(String[] args) {
 		pigLatinTranslationLoop();
 	}
-	
+
 	public static void pigLatinTranslationLoop() {
 		String continueProgram;
 		String userInput;
@@ -19,20 +19,20 @@ public class PigLatinTranslator {
 		// Loop program until user decides to quit
 		do {
 			System.out.print("Enter a word or line to be translated to Pig Latin: ");
-		    userInput = scnr.nextLine();
+			userInput = scnr.nextLine();
 
-		    System.out.println("\nIn Pig Latin, that's: ");
-		    System.out.println(translateLineToPigLatin(userInput));
+			System.out.println("\nIn Pig Latin, that's: ");
+			System.out.println(translateLineToPigLatin(userInput));
 
-		    System.out.println("\nWould you like to translate another? (Y/n)");
-		    continueProgram = scnr.nextLine();
+			System.out.println("\nWould you like to translate another? (Y/n)");
+			continueProgram = scnr.nextLine();
 
 		} while (!continueProgram.equals("n"));
 
 		// Say goodbye and close scanner
-		System.out.println("Oodbyegay!");
+		System.out.println("\nOkayway! Oodbyegay!");
 		scnr.close();
-		
+
 	}
 
 	private static String translateLineToPigLatin(String line) {
