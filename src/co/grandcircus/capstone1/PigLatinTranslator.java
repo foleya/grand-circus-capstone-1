@@ -23,6 +23,7 @@ public class PigLatinTranslator {
 		do {
 			// Get a word or line from the user for translation
 			// Remove apostrophes because they don't play nice with pig latin
+			System.out.print("Enter a word or line to be translated to Pig Latin: ");
 			userInput = removeApostrophes(getValidInput(scnr));
 
 			// Translate the user's input
@@ -47,16 +48,15 @@ public class PigLatinTranslator {
 		String input = "";
 
 		do {
-			System.out.print("Enter a word or line to be translated to Pig Latin: ");
 			input = scnr.nextLine();
 			try {
 				if (input.length() > 0) {
 					inputIsValid = true;
 				} else {
-					System.out.println("\n -- You must enter something! --\n");
+					System.out.print("\n -- You must enter something! Try again: ");
 				}
 			} catch (InputMismatchException ime) {
-				System.out.println("\n -- You must enter something! --\n");
+				System.out.print("\n -- You must enter something! Try again: ");
 			}
 		} while (!inputIsValid);
 
@@ -145,7 +145,7 @@ public class PigLatinTranslator {
 
 	// Check the case of a word, to be restored after translation
 	private static String checkWordCase(String word) {
-		if (word.equals(word.toUpperCase())) {
+		if (word.equals(word.toUpperCase()) && word.length() > 1) {
 			// upper case
 			return "Uppercase";
 		} else if (word.equals(word.toLowerCase())) {
