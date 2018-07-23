@@ -1,6 +1,8 @@
 package co.grandcircus.capstone1;
 
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PigLatinTranslator {
 
@@ -11,7 +13,7 @@ public class PigLatinTranslator {
 	public static void pigLatinTranslationLoop() {
 		String continueProgram;
 		String userInput;
-		Scanner scnr = new Scanner(System.in);
+		final Scanner scnr = new Scanner(System.in);
 
 		// Greet the user
 		System.out.println("Hello, welcome to the Pig Latin Translator!\n");
@@ -19,10 +21,11 @@ public class PigLatinTranslator {
 		// Loop program until user decides to quit
 		do {
 			System.out.print("Enter a word or line to be translated to Pig Latin: ");
-			userInput = scnr.nextLine();
+			userInput = removeApostrophes(scnr.nextLine());
 
 			System.out.println("\nIn Pig Latin, that's: ");
-			System.out.println(translateLineToPigLatin(userInput));
+			System.out.println(translateLineToPigLatin(userInput, "[^\\p{Punct}\\s]+"));
+			
 
 			System.out.println("\nWould you like to translate another? (Y/n)");
 			continueProgram = scnr.nextLine();
@@ -34,15 +37,21 @@ public class PigLatinTranslator {
 		scnr.close();
 
 	}
-
-	private static String translateLineToPigLatin(String line) {
-		String[] toBeTranslated = line.split("[\\p{Punct}\\s]+");
-
-		for (int index = 0; index < toBeTranslated.length; index++) {
-			toBeTranslated[index] = translateWordToPigLatin(toBeTranslated[index]);
+	
+	private static StringBuilder translateLineToPigLatin(String line, String regex) {
+		StringBuilder translatedLine = new StringBuilder(line);
+		Matcher matcher = Pattern.compile(regex).matcher(line);
+		int count = 0;
+		
+		while (matcher.find()) {
+			String word = matcher.group();
+			translatedLine.replace(matcher.start() + count, matcher.end() + count, translateWordToPigLatin(word));
+			if (!word.equals(translateWordToPigLatin(word))) { 
+					count += 2; /* only add 2 buffer characters if the word was changed */
+			}
 		}
 
-		return String.join(" ", toBeTranslated);
+		return translatedLine;
 	}
 
 	private static String removeApostrophes(String word) {
@@ -76,9 +85,6 @@ public class PigLatinTranslator {
 		} else {
 			// Force to Lower Case
 			word = word.toLowerCase();
-
-			// Remove Apostrophes
-			word = removeApostrophes(word);
 
 			// Iterate through string, looking for first vowel character
 			for (int index = 0; index < word.length(); index++) {
