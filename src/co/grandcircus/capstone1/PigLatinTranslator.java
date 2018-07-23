@@ -1,5 +1,6 @@
 package co.grandcircus.capstone1;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,12 +21,10 @@ public class PigLatinTranslator {
 
 		// Loop program until user decides to quit
 		do {
-			System.out.print("Enter a word or line to be translated to Pig Latin: ");
-			userInput = removeApostrophes(scnr.nextLine());
+			userInput = removeApostrophes(getValidInput(scnr));
 
 			System.out.println("\nIn Pig Latin, that's: ");
 			System.out.println(translateLineToPigLatin(userInput, "[^\\p{Punct}\\s]+"));
-			
 
 			System.out.println("\nWould you like to translate another? (Y/n)");
 			continueProgram = scnr.nextLine();
@@ -37,43 +36,54 @@ public class PigLatinTranslator {
 		scnr.close();
 
 	}
-	
+
+	// Validate that the user enters something
+	private static String getValidInput(Scanner scnr) {
+		boolean inputIsValid = false;
+		String input = "";
+
+		do {
+			System.out.print("Enter a word or line to be translated to Pig Latin: ");
+			input = scnr.nextLine();
+			try {
+				if (input.length() > 0) {
+					inputIsValid = true;
+				} else {
+					System.out.println("\n -- You must enter something! --\n");
+				}
+			} catch (InputMismatchException ime) {
+				System.out.println("\n -- You must enter something! --\n");
+			}
+		} while (!inputIsValid);
+
+		return input;
+	}
+
+	// Remove apostrophes from user input
+	private static String removeApostrophes(String word) {
+		return word.replace("'", "");
+	}
+
+	// Translate a line to pig latin
 	private static StringBuilder translateLineToPigLatin(String line, String regex) {
 		StringBuilder translatedLine = new StringBuilder(line);
 		Matcher matcher = Pattern.compile(regex).matcher(line);
 		int count = 0;
-		
+
 		while (matcher.find()) {
 			String word = matcher.group();
-			translatedLine.replace(matcher.start() + count, matcher.end() + count, translateWordToPigLatin(word));
-			if (!word.equals(translateWordToPigLatin(word))) { 
-					count += 2; /* only add 2 buffer characters if the word was changed */
+			translatedLine.replace(matcher.start() + count, 
+								   matcher.end() + count, 
+								   translateWordToPigLatin(word));
+			if (!word.equals(translateWordToPigLatin(word))) {
+				count += 2; /* only add 2 buffer characters if the word was changed */
 			}
 		}
 
 		return translatedLine;
 	}
 
-	private static String removeApostrophes(String word) {
-		return word.replace("'", "");
-
-	}
-
-	private static String restoreFormerCase(String word, String formerCase) {
-		switch (formerCase) {
-		case "Uppercase":
-			return word.toUpperCase();
-		case "Lowercase":
-			return word.toLowerCase();
-		case "Titlecase":
-			return word.substring(0, 1).toUpperCase() + word.substring(1);
-		case "FuNkYcAsE":
-			return word;
-		default:
-			return word;
-		}
-	}
-
+	// Translate a single word to pig latin
 	private static String translateWordToPigLatin(String word) {
 		String vowels = "aeiou";
 		String formerCase = checkWordCase(word);
@@ -105,6 +115,7 @@ public class PigLatinTranslator {
 		return word;
 	}
 
+	// Check the case of a word, to be restored after translation
 	private static String checkWordCase(String word) {
 		if (word.equals(word.toUpperCase())) {
 			// upper case
@@ -123,3 +134,19 @@ public class PigLatinTranslator {
 	}
 
 }
+
+	// Restore the former case of a word, since translation forces lower case
+	private static String restoreFormerCase(String word, String formerCase) {
+		switch (formerCase) {
+		case "Uppercase":
+			return word.toUpperCase();
+		case "Lowercase":
+			return word.toLowerCase();
+		case "Titlecase":
+			return word.substring(0, 1).toUpperCase() + word.substring(1);
+		case "FuNkYcAsE":
+			return word;
+		default:
+			return word;
+		}
+	}
