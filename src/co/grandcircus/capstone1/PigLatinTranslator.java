@@ -21,11 +21,15 @@ public class PigLatinTranslator {
 
 		// Loop program until user decides to quit
 		do {
+			// Get a word or line from the user for translation
+			// Remove apostrophes because they don't play nice with pig latin
 			userInput = removeApostrophes(getValidInput(scnr));
 
+			// Translate the user's input
 			System.out.println("\nIn Pig Latin, that's: ");
 			System.out.println(translateLineToPigLatin(userInput));
 
+			// Ask if user would like to continue the program
 			System.out.println("\nWould you like to translate another? (Y/n)");
 			continueProgram = scnr.nextLine();
 
@@ -67,22 +71,33 @@ public class PigLatinTranslator {
 	// Translate a line to pig latin
 	private static StringBuilder translateLineToPigLatin(String line) {
 		StringBuilder translatedLine = new StringBuilder(line);
-		Matcher matcher = Pattern.compile("[^\\p{Punct}\\s]+").matcher(line);
-		int translationOffset = 0;
+		String regex = "[^\\p{Punct}\\s]+";
+		Matcher matcher = Pattern.compile(regex).matcher(line);
+		int indexOffset = 0;
 
+		// Iterate through line looking for things other than punctuation and whitespace
 		while (matcher.find()) {
+			// Upon finding something, store that word as a variable
 			String word = matcher.group();
+			// Create a pig-latin translated version of the word
 			String translatedWord = translateWordToPigLatin(word);
-			translatedLine.replace(matcher.start() + translationOffset,
-								   matcher.end() + translationOffset,
+			/* Replace the original word with the pig latin version.
+			 * Doing so often increases the length of the word, which means the index
+			 * at which matcher found a match in the original line needs to be increased/padded
+			 * so that the word in the translated line (which is ever growing in size) is
+			 * replaced at the index in that line that would have corresponded to the index
+			 * matcher found in the original line.
+			 */
+			translatedLine.replace(matcher.start() + indexOffset,
+								   matcher.end() + indexOffset,
 								   translatedWord);
 			if (!word.equals(translatedWord)) {
 				if (word.charAt(0) == translatedWord.charAt(0)) {
 					// Increase index-offset by 3 if word changed and added "way"
-					translationOffset += 3; 
+					indexOffset += 3; 
 				} else {
 					// Increase index-offset by 2 if word changed and added "ay"
-					translationOffset += 2;
+					indexOffset += 2;
 				}
 			}
 		}
