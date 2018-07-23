@@ -65,6 +65,7 @@ public class PigLatinTranslator {
 	}
 
 	// Translate a line to pig latin
+	// TODO: Add ability for +3 buffer with +"way"
 	private static StringBuilder translateLineToPigLatin(String line, String regex) {
 		StringBuilder translatedLine = new StringBuilder(line);
 		Matcher matcher = Pattern.compile(regex).matcher(line);
@@ -72,11 +73,13 @@ public class PigLatinTranslator {
 
 		while (matcher.find()) {
 			String word = matcher.group();
-			translatedLine.replace(matcher.start() + count, 
-								   matcher.end() + count, 
-								   translateWordToPigLatin(word));
+			translatedLine.replace(matcher.start() + count, matcher.end() + count, translateWordToPigLatin(word));
 			if (!word.equals(translateWordToPigLatin(word))) {
-				count += 2; /* only add 2 buffer characters if the word was changed */
+				if (word.charAt(0) == translateWordToPigLatin(word).charAt(0)) {
+					count += 3; /* add 3 buffer characters if word changed and added "way" */
+				} else {
+					count += 2; /* add 2 buffer characters if word changed and added "ay" */
+				}
 			}
 		}
 
@@ -85,7 +88,6 @@ public class PigLatinTranslator {
 
 	// Translate a single word to pig latin
 	private static String translateWordToPigLatin(String word) {
-		String vowels = "aeiou";
 		String formerCase = checkWordCase(word);
 
 		// If word has digits or special characters, do nothing
@@ -100,19 +102,25 @@ public class PigLatinTranslator {
 			for (int index = 0; index < word.length(); index++) {
 				// Upon finding first vowel, use its index to translate the word
 				// to pig latin, and break the for loop.
-				if (vowels.contains(String.valueOf(word.charAt(index)))) {
-					word = word.substring(index) + word.substring(0, index) + "ay";
-					break;
-
+				if (isVowel(word.charAt(index))) {
+					if (index == 0) {
+						word = word + "way";
+						break;
+					} else {
+						word = word.substring(index) + word.substring(0, index) + "ay";
+						break;
+					}
 				}
-
 			}
-
 			// Restore the word's former case
 			word = restoreFormerCase(word, formerCase);
 		}
 
 		return word;
+	}
+
+	private static Boolean isVowel(char letter) {
+		return "AEIOUaeiou".indexOf(letter) != -1;
 	}
 
 	// Check the case of a word, to be restored after translation
@@ -133,8 +141,6 @@ public class PigLatinTranslator {
 
 	}
 
-}
-
 	// Restore the former case of a word, since translation forces lower case
 	private static String restoreFormerCase(String word, String formerCase) {
 		switch (formerCase) {
@@ -150,3 +156,5 @@ public class PigLatinTranslator {
 			return word;
 		}
 	}
+
+}
