@@ -24,7 +24,7 @@ public class PigLatinTranslator {
 			userInput = removeApostrophes(getValidInput(scnr));
 
 			System.out.println("\nIn Pig Latin, that's: ");
-			System.out.println(translateLineToPigLatin(userInput, "[^\\p{Punct}\\s]+"));
+			System.out.println(translateLineToPigLatin(userInput));
 
 			System.out.println("\nWould you like to translate another? (Y/n)");
 			continueProgram = scnr.nextLine();
@@ -65,20 +65,24 @@ public class PigLatinTranslator {
 	}
 
 	// Translate a line to pig latin
-	// TODO: Add ability for +3 buffer with +"way"
-	private static StringBuilder translateLineToPigLatin(String line, String regex) {
+	private static StringBuilder translateLineToPigLatin(String line) {
 		StringBuilder translatedLine = new StringBuilder(line);
-		Matcher matcher = Pattern.compile(regex).matcher(line);
-		int count = 0;
+		Matcher matcher = Pattern.compile("[^\\p{Punct}\\s]+").matcher(line);
+		int translationOffset = 0;
 
 		while (matcher.find()) {
 			String word = matcher.group();
-			translatedLine.replace(matcher.start() + count, matcher.end() + count, translateWordToPigLatin(word));
-			if (!word.equals(translateWordToPigLatin(word))) {
-				if (word.charAt(0) == translateWordToPigLatin(word).charAt(0)) {
-					count += 3; /* add 3 buffer characters if word changed and added "way" */
+			String translatedWord = translateWordToPigLatin(word);
+			translatedLine.replace(matcher.start() + translationOffset,
+								   matcher.end() + translationOffset,
+								   translatedWord);
+			if (!word.equals(translatedWord)) {
+				if (word.charAt(0) == translatedWord.charAt(0)) {
+					// Increase index-offset by 3 if word changed and added "way"
+					translationOffset += 3; 
 				} else {
-					count += 2; /* add 2 buffer characters if word changed and added "ay" */
+					// Increase index-offset by 2 if word changed and added "ay"
+					translationOffset += 2;
 				}
 			}
 		}
@@ -119,6 +123,7 @@ public class PigLatinTranslator {
 		return word;
 	}
 
+	// Check whether a character is a vowel
 	private static Boolean isVowel(char letter) {
 		return "AEIOUaeiou".indexOf(letter) != -1;
 	}
